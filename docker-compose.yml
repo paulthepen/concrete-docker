@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  concrete:
+    image: paulcharpie/concrete-cms:latest
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: concrete_swhp
+      DB_USER: root
+      DB_PASSWORD: root
+    ports:
+      - "8081:80"
+    volumes:
+      - /srv/dev-disk-by-uuid-9700578f-820a-4e3c-ac2b-a8debdbff1d7/appData/concreteSites/SWHP:/var/www/html/application/files #this needs to change to a new folder each installation
+      - /srv/dev-disk-by-uuid-9700578f-820a-4e3c-ac2b-a8debdbff1d7/appData/ConcretePackages:/var/www/html/packages
+    networks:
+      - concrete-network
+
+networks:
+  concrete-network:
+    external: true

@@ -1,22 +1,49 @@
 version: '3.8'
 
 services:
+  db:
+    image: mysql:5.7
+    profiles: [ "db" ]
+    container_name: mysqldb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - concrete-network
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    profiles: ["db"]
+    ports:
+      - "8082:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    depends_on:
+      - db
+    networks:
+      - concrete-network
   concrete:
     image: paulcharpie/concrete-cms:latest
     environment:
       DB_HOST: db
       DB_PORT: 3306
-      DB_NAME: concrete_swhp
-      DB_USER: root
-      DB_PASSWORD: root
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASS}
     ports:
       - "8081:80"
     volumes:
-      - /srv/dev-disk-by-uuid-9700578f-820a-4e3c-ac2b-a8debdbff1d7/appData/concreteSites/SWHP:/var/www/html/application/files #this needs to change to a new folder each installation
-      - /srv/dev-disk-by-uuid-9700578f-820a-4e3c-ac2b-a8debdbff1d7/appData/ConcretePackages:/var/www/html/packages
+      - ${SITE_FILES_PATH}:/var/www/html/application/files
+      - ${PACKAGES_PATH}:/var/www/html/packages
     networks:
       - concrete-network
-
+volumes:
+  mysql_data:
 networks:
   concrete-network:
     external: true
